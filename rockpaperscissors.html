@@ -3,79 +3,99 @@
 <head>
   <title>Page Title</title>
   <meta charset="UTF-8"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <H1>Do you want to play a game to 5?</H1>
+  <button type="button">Rock</button>
+  <button type="button">Paper</button>
+  <button type="button">Scissors</button>
+  <div id="scoreboard">
+  </div>
+
   <script>
   
+    //Random choice for computer
     function computerPlay() {
       let choices = ["Rock", "Paper", "Scissors"];
       let selected = choices[Math.floor(Math.random() * 3)];
       return selected;
     }
 
-    function playRound(playerSelection, computerSelection) {
-      var reply;
-      var resultIndicator;
-      let playerSel = playerSelection.toLowerCase();
-      playerSel = playerSel[0].toUpperCase() + playerSel.slice(1, playerSel.length);
-      
-      console.log('The computer choose ' + computerSelection + '.');
+    function playGame(playerSelection) {
+      clearScore();
+      var result;
+      let playerSel = playerSelection;
+      let computerSelection = computerPlay();
+      console.log('The computer chose ' + computerSelection + '.');
 
-      if (playerSel == computerSelection) {
-        console.log('It\'s a TIE!');
-        resultIndicator = 0;
-      } else if ((playerSel == 'Rock' && computerSelection == 'Scissors') || (playerSel == 'Paper' && computerSelection == 'Rock') || (playerSel == 'Scissors' && computerSelection == 'Paper')) {
-        console.log('You Win! ' + playerSel + ' beats ' + computerSelection);
-        resultIndicator = 1;
+      if (playerSelection == computerSelection) {
+        result = 'It\'s a TIE!';
+        postScore(playerSelection, computerSelection, result);
+      } else if ((playerSelection == 'Rock' && computerSelection == 'Scissors') || (playerSelection == 'Paper' && computerSelection == 'Rock') || (playerSelection == 'Scissors' && computerSelection == 'Paper')) {
+        result = 'You WIN!';
+        playerScore++;
+        postScore(playerSelection, computerSelection, result);
       } else {
-        console.log('You Lose! ' + computerSelection + ' beats ' + playerSel);
-        resultIndicator = -1;
+        result = 'You LOSE!';
+        computerScore++;
+        postScore(playerSelection, computerSelection, result);
       }
-      return resultIndicator;
-    }
-
-    function game() {
-      let totalWins = 0;
-      let totalLosses = 0;
-      let totalTies = 0;
-
-      for (i = 0; i < 5; i++) {
-        let playerSelection = prompt('Choose Rock, Paper or Scissors?', 'Rock');
-        let playerSel = playerSelection.toLowerCase();
-        playerSel = playerSel[0].toUpperCase() + playerSel.slice(1, playerSel.length);
-        console.log(playerSel);
-        if (playerSel == 'Rock' || playerSel == 'Paper' || playerSel == 'Scissors') {
-          computerSelection = computerPlay();
-          let result = playRound(playerSelection, computerSelection);
-
-          if (result == 1) {
-            totalWins++;
-          } 
-          if (result == -1) {
-            totalLosses++;
-          } 
-          if (result == 0) {
-            totalTies++;
-          }
+      if (!(playerScore < 5 && computerScore < 5)) { //Stops game when a score of 5 is reached
+        clearScore();
+        if (playerScore == 5) {
+          result = 'YOU ARE THE FIRST TO 5!!!!!!';
+          postScore(playerSelection, computerSelection, result);
         } else {
-          console.log('You didn\'t choose Rock, Paper or Scissors, that counts as a loss :(.');
-          totalLosses++;
+          result = 'THE COMPUTER BEAT YOU SUCKA!!!!!';
+          postScore(playerSelection, computerSelection, result);
         }
-      }
-
-      if (totalWins > totalLosses) {
-        console.log('You WIN the game! ' + totalWins + ' win(s) to ' + totalLosses + ' loss(es) with ' + totalTies + ' tie(s).');
-      } else if (totalLosses > totalWins) {
-        console.log('You LOSE the game! ' + totalWins + ' win(s) to ' + totalLosses + ' loss(es) with ' + totalTies + ' tie(s).');
-      } else {
-        console.log('You TIE the game! ' + totalWins + ' win(s) to ' + totalLosses + 'loss(es) with ' + totalTies + ' tie(s).');
+        gameOver();
       }
     }
 
-    var playerSelection
-    var computerSelection
+    //Creates scoreboard with current information
+    function postScore(playerSelection, computerSelection, result) {
+      const scoreboard = document.querySelector('#scoreboard');
 
-    alert(game());
+      const computerChoice = document.createElement('h1');
+      computerChoice.textContent = 'You chose ' + playerSelection + ' and the computer chose ' + computerSelection + '...' + result;
+      scoreboard.appendChild(computerChoice);
+      
+      const playerText = document.createElement('h1');
+      playerText.textContent = 'Player Score: ' + playerScore;
+      scoreboard.appendChild(playerText);
+
+      const computerText = document.createElement('h1');
+      computerText.textContent = 'Computer Score: ' + computerScore;
+      scoreboard.appendChild(computerText);
+    }
+
+    //Clears the scoreboard of current information
+    function clearScore() {
+      var div = document.getElementById("scoreboard");
+
+      while(div.firstChild) { 
+        div.removeChild(div.firstChild);
+      } 
+    }
+
+    //Prevents game from going on forever
+    function gameOver() {
+      window.removeEventListener('click', choiceMade);
+    }
+
+    //Plays a round of the game when a choice button is clicked
+    function choiceMade(e) {
+      if (e.target.attributes.type.textContent == "button") {
+        playGame(e.target.innerText);
+      }
+    }
+
+    let playerScore = 0;
+    let computerScore = 0;
+    let scoreboardMessage = '';
+    window.addEventListener('click', choiceMade);
 
   </script>
 </body>
